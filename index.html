@@ -358,14 +358,14 @@ function botMove(){
  let bestScore=botColor==='w'?-Infinity:Infinity;
  for(const m of moves){
  const r=makeMove(m,board,castlingRights,enPassantTarget);
- const s=minimax(r.board,4,-Infinity,Infinity,botColor==='w',r.cr,r.ep);
+ const s=minimax(r.board,3,-Infinity,Infinity,botColor==='w',r.cr,r.ep);
  if(botColor==='w'){if(s>bestScore){bestScore=s;bestMove=m;}}
  else{if(s<bestScore){bestScore=s;bestMove=m;}}
  }
  }
  if(bestMove)executeMove(bestMove);
  document.getElementById('thinking').classList.remove('active');
- },800);
+ },100);
 }
 function executeMove(move){
  history.push(cloneState());
