@@ -4,38 +4,65 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="mobile-web-app-capable" content="yes">
     <title>شطرنج شایان</title>
     <script src="https://tapi.bale.ai/miniapp.js?3"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; touch-action: manipulation; }
-        html, body { overscroll-behavior: none; }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; touch-action: manipulation; }
         body {
             font-family: 'Segoe UI', Tahoma, sans-serif;
             background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
             color: #fff;
             padding: 8px;
+            overflow-x: hidden;
         }
-        .game-container { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; max-width: 450px; }
-        .panel {
-            background: rgba(255,255,255,0.05);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 14px;
-            padding: 12px;
-            width: 100%;
+        .game-container {
+            max-width: 450px;
+            margin: 0 auto;
             display: flex;
             flex-direction: column;
             gap: 10px;
         }
-        .panel h1 {
+        .user-panel {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 14px;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ffd700, #ffaa00);
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 1.3rem;
+            font-weight: bold;
+            color: #1a1a2e;
+            overflow: hidden;
+        }
+        .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .user-info { flex: 1; }
+        .user-name { font-size: 0.95rem; font-weight: bold; color: #ffd700; }
+        .user-details { font-size: 0.7rem; color: #aaa; margin-top: 2px; }
+        .panel {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 14px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .panel h1 {
+            font-size: 1.2rem;
             text-align: center;
             background: linear-gradient(to right, #ffd700, #ffaa00);
             -webkit-background-clip: text;
@@ -44,25 +71,25 @@
         }
         .status {
             text-align: center;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             padding: 8px;
             background: rgba(0,0,0,0.3);
             border-radius: 8px;
             font-weight: bold;
-            min-height: 38px;
+            min-height: 35px;
             display: flex;
             align-items: center;
             justify-content: center;
         }
-        .thinking { display: none; align-items: center; justify-content: center; gap: 6px; color: #ffd700; font-size: 0.85rem; }
+        .thinking { display: none; align-items: center; justify-content: center; gap: 6px; color: #ffd700; font-size: 0.8rem; }
         .thinking.active { display: flex; }
-        .spinner { width: 14px; height: 14px; border: 2px solid rgba(255,215,0,0.3); border-top-color: #ffd700; border-radius: 50%; animation: spin 0.8s linear infinite; }
+        .spinner { width: 12px; height: 12px; border: 2px solid rgba(255,215,0,0.3); border-top-color: #ffd700; border-radius: 50%; animation: spin 0.8s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
         .captured-row { display: flex; align-items: center; gap: 6px; }
-        .captured-row small { color: #aaa; font-size: 0.7rem; white-space: nowrap; }
-        .captured-area { display: flex; flex-wrap: wrap; gap: 1px; min-height: 26px; padding: 4px; background: rgba(0,0,0,0.2); border-radius: 6px; flex: 1; }
-        .captured-area svg { width: 20px; height: 20px; }
-        .board-wrapper { position: relative; width: 100%; max-width: 400px; }
+        .captured-row small { color: #aaa; font-size: 0.65rem; white-space: nowrap; }
+        .captured-area { display: flex; flex-wrap: wrap; gap: 1px; min-height: 24px; padding: 3px; background: rgba(0,0,0,0.2); border-radius: 6px; flex: 1; }
+        .captured-area svg { width: 18px; height: 18px; }
+        .board-wrapper { position: relative; width: 100%; max-width: 400px; margin: 0 auto; }
         .board {
             display: grid;
             grid-template-columns: repeat(8, 1fr);
@@ -78,12 +105,30 @@
         .square.light { background: #f0d9b5; }
         .square.dark { background: #b58863; }
         .square.selected { background: #f7ec59 !important; }
-        .square.valid-move::after { content: ''; position: absolute; width: 28%; height: 28%; background: radial-gradient(circle, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.1) 60%, transparent 70%); border-radius: 50%; }
+        .square.valid-move::after { content: ''; position: absolute; width: 28%; height: 28%; background: radial-gradient(circle, rgba(0,0,0,0.4) 0%, transparent 70%); border-radius: 50%; }
         .square.valid-capture { background: radial-gradient(circle, transparent 55%, rgba(220, 38, 38, 0.6) 56%) !important; }
         .square.last-move { background: rgba(155, 199, 0, 0.45) !important; }
         .square.check { background: radial-gradient(circle, #ff0000 0%, #cc0000 40%, transparent 70%) !important; animation: pulseCheck 1s infinite; }
         @keyframes pulseCheck { 0%,100%{box-shadow:inset 0 0 10px #ff0000;} 50%{box-shadow:inset 0 0 25px #ff0000;} }
-        .piece { width: 85%; height: 85%; pointer-events: none; filter: drop-shadow(1px 2px 2px rgba(0,0,0,0.5)); }
+        .piece { width: 90%; height: 90%; pointer-events: none; filter: drop-shadow(1px 2px 2px rgba(0,0,0,0.5)); }
+        .result-panel {
+            display: none;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(10px);
+            border: 2px solid #ffd700;
+            border-radius: 14px;
+            padding: 15px;
+            text-align: center;
+            animation: slideIn 0.5s ease-out;
+        }
+        .result-panel.active { display: block; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        .result-icon { font-size: 3rem; margin-bottom: 10px; }
+        .result-title { font-size: 1.3rem; font-weight: bold; margin-bottom: 5px; }
+        .result-title.win { color: #4ade80; }
+        .result-title.lose { color: #f87171; }
+        .result-title.draw { color: #fbbf24; }
+        .result-subtitle { font-size: 0.85rem; color: #aaa; margin-bottom: 12px; }
         .btn {
             padding: 10px;
             border: none;
@@ -97,9 +142,7 @@
         }
         .btn:active { transform: scale(0.97); }
         .btn:disabled { opacity: 0.5; }
-        .btn-row { display: flex; gap: 8px; }
-        .btn-row .btn { flex: 1; }
-        .move-log { max-height: 70px; overflow-y: auto; font-size: 0.7rem; background: rgba(0,0,0,0.3); padding: 6px; border-radius: 6px; direction: ltr; text-align: left; }
+        .send-status { font-size: 0.75rem; color: #ffd700; text-align: center; min-height: 18px; margin-top: 5px; }
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; }
         .modal-overlay.active { display: flex; }
         .modal { background: #1a1a2e; border: 2px solid #ffd700; border-radius: 14px; padding: 20px; text-align: center; max-width: 90%; }
@@ -107,31 +150,20 @@
         .promo-piece { cursor: pointer; padding: 6px; border-radius: 8px; background: rgba(255,255,255,0.1); }
         .promo-piece:active { background: #ffd700; }
         .promo-piece svg { width: 40px; height: 40px; }
-        .result-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); z-index: 2000; justify-content: center; align-items: center; flex-direction: column; gap: 15px; padding: 20px; }
-        .result-screen.active { display: flex; }
-        .result-image { width: 180px; height: 180px; border-radius: 18px; display: flex; justify-content: center; align-items: center; animation: popIn 0.5s ease-out; }
-        .result-image.win { background: linear-gradient(135deg, #1a472a, #2d6a4f); border: 3px solid #4ade80; box-shadow: 0 0 50px rgba(74,222,128,0.3); }
-        .result-image.lose { background: linear-gradient(135deg, #4a1a1a, #6a2d2d); border: 3px solid #f87171; box-shadow: 0 0 50px rgba(248,113,113,0.3); }
-        .result-image.draw { background: linear-gradient(135deg, #3a3a1a, #5a5a2d); border: 3px solid #fbbf24; box-shadow: 0 0 50px rgba(251,191,36,0.3); }
-        .result-image svg { width: 120px; height: 120px; }
-        .result-title { font-size: 1.5rem; font-weight: 900; text-align: center; }
-        .result-title.win { color: #4ade80; }
-        .result-title.lose { color: #f87171; }
-        .result-title.draw { color: #fbbf24; }
-        .result-subtitle { font-size: 0.9rem; color: #aaa; text-align: center; }
-        .result-btn { padding: 12px 30px; border: none; border-radius: 10px; font-size: 1rem; font-weight: bold; cursor: pointer; background: linear-gradient(135deg, #ffd700, #ffaa00); color: #1a1a2e; }
-        .result-btn:active { transform: scale(0.95); }
-        @keyframes popIn { 0%{opacity:0;transform:scale(0.5);} 100%{opacity:1;transform:scale(1);} }
-        .send-status { font-size: 0.8rem; color: #ffd700; text-align: center; min-height: 20px; }
-        @media (max-width: 360px) {
-            .panel h1 { font-size: 1.1rem; }
-            .status { font-size: 0.85rem; }
-        }
     </style>
 </head>
 <body>
 
-<div class="game-container">
+<div class="game-container" id="captureArea">
+    <!-- پنل کاربر -->
+    <div class="user-panel">
+        <div class="user-avatar" id="userAvatar">?</div>
+        <div class="user-info">
+            <div class="user-name" id="userName">در حال بارگذاری...</div>
+            <div class="user-details" id="userDetails"></div>
+        </div>
+    </div>
+
     <div class="panel">
         <h1>♟️ شطرنج شایان</h1>
         <div class="status" id="status">نوبت شما (سفید)</div>
@@ -148,18 +180,19 @@
             <small>گرفته توسط ربات:</small>
             <div class="captured-area" id="captured-black"></div>
         </div>
-
-        <div class="move-log" id="moveLog"></div>
-
-        <div class="btn-row">
-            <button class="btn" onclick="resetGame()">🔄 بازی جدید</button>
-            <button class="btn" id="sendBtn" onclick="sendResultToBot()" disabled>📤 ارسال به بات</button>
-        </div>
-        <div class="send-status" id="sendStatus"></div>
     </div>
 
     <div class="board-wrapper">
         <div class="board" id="board"></div>
+    </div>
+
+    <!-- پنل نتیجه کنار صفحه -->
+    <div class="result-panel" id="resultPanel">
+        <div class="result-icon" id="resultIcon">🏆</div>
+        <div class="result-title" id="resultTitle"></div>
+        <div class="result-subtitle" id="resultSubtitle"></div>
+        <button class="btn" onclick="resetGame()">🔄 بازی جدید</button>
+        <div class="send-status" id="sendStatus"></div>
     </div>
 </div>
 
@@ -171,23 +204,47 @@
     </div>
 </div>
 
-<div class="result-screen" id="resultScreen">
-    <div class="result-image" id="resultImage"></div>
-    <div class="result-title" id="resultTitle"></div>
-    <div class="result-subtitle" id="resultSubtitle"></div>
-    <button class="result-btn" onclick="closeResultAndReset()">بازی دوباره</button>
-</div>
-
 <script>
-// Bale WebApp
 let baleApp = window.Bale?.WebApp;
+let currentUser = null;
+
 if (baleApp) {
     baleApp.ready();
     baleApp.expand();
     if (baleApp.setHeaderColor) baleApp.setHeaderColor('#0f0c29');
+    currentUser = baleApp.initDataUnsafe?.user;
 }
 
-// --- SVG مهره‌ها ---
+// نمایش اطلاعات کاربر
+function displayUserInfo() {
+    const avatarEl = document.getElementById('userAvatar');
+    const nameEl = document.getElementById('userName');
+    const detailsEl = document.getElementById('userDetails');
+    
+    if (currentUser) {
+        const firstName = currentUser.first_name || '';
+        const lastName = currentUser.last_name || '';
+        const username = currentUser.username ? '@' + currentUser.username : 'ندارد';
+        const userId = currentUser.id || '';
+        const fullName = (firstName + ' ' + lastName).trim() || 'کاربر';
+        
+        nameEl.textContent = fullName;
+        detailsEl.textContent = `🆔 ${userId} | ${username}`;
+        
+        // آواتار
+        if (currentUser.photo_url) {
+            avatarEl.innerHTML = `<img src="${currentUser.photo_url}" alt="avatar">`;
+        } else {
+            avatarEl.textContent = firstName.charAt(0).toUpperCase() || '?';
+        }
+    } else {
+        nameEl.textContent = 'کاربر مهمان';
+        detailsEl.textContent = '🆔 نامشخص';
+    }
+}
+
+displayUserInfo();
+
 const SVG_PIECES = {
     K: `<svg viewBox="0 0 45 45"><g fill="none" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22.5 11.63V6M20 8h5" stroke-linejoin="miter"/><path d="M22.5 25s4.5-7.5 3-10.5c0 0-1-2.5-3-2.5s-3 2.5-3 2.5c-1.5 3 3 10.5 3 10.5" fill="#fff" stroke-linecap="butt"/><path d="M11.5 37c5.5 3.5 15.5 3.5 21 0v-7s9-4.5 6-10.5c-4-6.5-13.5-3.5-16 4V27v-3.5c-3.5-7.5-13-10.5-16-4-3 6 5 10 5 10V37z" fill="#fff"/><path d="M11.5 30c5.5-3 15.5-3 21 0M11.5 33.5c5.5-3 15.5-3 21 0M11.5 37c5.5-3 15.5-3 21 0"/></g></svg>`,
     Q: `<svg viewBox="0 0 45 45"><g fill="#fff" stroke="#000" stroke-width="1.5" stroke-linejoin="round"><path d="M8 12l4.5 16.5L6 36h33l-6.5-7.5L37 12l-7 13.5L22.5 9 15 25.5z"/><circle cx="8" cy="12" r="2.5"/><circle cx="37" cy="12" r="2.5"/><circle cx="22.5" cy="9" r="2.5"/><circle cx="15" cy="25.5" r="2.5"/><circle cx="30" cy="25.5" r="2.5"/><path d="M9 36c3.5-3 10.5-3 13.5 0 3-3 10-3 13.5 0M9 39c3.5-3 10.5-3 13.5 0 3-3 10-3 13.5 0" fill="none" stroke-linecap="round"/></g></svg>`,
@@ -201,12 +258,6 @@ const SVG_PIECES = {
     b: `<svg viewBox="0 0 45 45"><g fill="none" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><g fill="#000" stroke-linecap="butt"><path d="M9 36c3.39-.97 10.11.43 13.5-2 3.39 2.43 10.11 1.03 13.5 2 0 0 1.65.54 3 2-.68.97-1.65.99-3 .5-3.39-.97-10.11.46-13.5-1-3.39 1.46-10.11.03-13.5 1-1.354.49-2.323.47-3-.5 1.354-1.94 3-2 3-2z"/><path d="M15 32c2.5 2.5 12.5 2.5 15 0 .5-1.5 0-2 0-2 0-2.5-2.5-4-2.5-4 5.5-1.5 6-11.5-5-15.5-11 4-10.5 14-5 15.5 0 0-2.5 1.5-2.5 4 0 0-.5.5 0 2z"/><path d="M25 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 1 1 5 0z"/></g><path d="M17.5 26h10M15 30h15m-7.5-14.5v5M20 18h5" stroke="#fff" stroke-linejoin="miter"/></g></svg>`,
     n: `<svg viewBox="0 0 45 45"><g fill="none" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10c10.5 1 16.5 8 16 29H15c0-9 10-6.5 8-21" fill="#000"/><path d="M24 18c.38 2.91-5.55 7.37-8 9-3 2-2.82 4.34-5 4-1.042-.94 1.41-3.04 0-3-1 0 .19 1.23-1 2-1 0-4.003 1-4-4 0-2 6-12 6-12s1.89-1.9 2-3.5c-.73-.994-.5-2-.5-3 1-1 3 2.5 3 2.5h2s.78-1.992 2.5-3c1 0 1 3 1 3" fill="#000"/><path d="M9.5 25.5a.5.5 0 1 1-1 0 .5.5 0 1 1 1 0z" fill="#fff" stroke="#fff"/><path d="M14.933 15.75a.5 1.5 30 1 1-.866-.5.5 1.5 30 1 1 .866.5z" fill="#fff" stroke="#fff"/><path d="M24.55 10.4l-.45 1.45.5.15c3.15 1 5.65 2.49 7.9 6.75S35.75 30 35.75 30" stroke="#fff" stroke-linecap="butt"/></g></svg>`,
     p: `<svg viewBox="0 0 45 45"><path d="M22.5 9c-2.21 0-4 1.79-4 4 0 .89.29 1.71.78 2.38C17.33 16.5 16 18.59 16 21c0 2.03.94 3.84 2.41 5.03C15.41 27.09 11 31.58 11 39.5H34c0-7.92-4.41-12.41-7.41-13.47C28.06 24.84 29 23.03 29 21c0-2.41-1.33-4.5-3.28-5.62.49-.67.78-1.49.78-2.38 0-2.21-1.79-4-4-4z" fill="#000" stroke="#000" stroke-width="1.5" stroke-linecap="round"/></svg>`
-};
-
-const RESULT_IMAGES = {
-    win: `<svg viewBox="0 0 200 200"><circle cx="100" cy="100" r="80" fill="#4ade80" opacity="0.3"/><path d="M100 30 L115 75 L160 75 L125 105 L135 150 L100 125 L65 150 L75 105 L40 75 L85 75 Z" fill="#4ade80"/></svg>`,
-    lose: `<svg viewBox="0 0 200 200"><circle cx="100" cy="100" r="80" fill="#f87171" opacity="0.3"/><line x1="60" y1="60" x2="140" y2="140" stroke="#f87171" stroke-width="10" stroke-linecap="round"/><line x1="140" y1="60" x2="60" y2="140" stroke="#f87171" stroke-width="10" stroke-linecap="round"/></svg>`,
-    draw: `<svg viewBox="0 0 200 200"><circle cx="100" cy="100" r="80" fill="#fbbf24" opacity="0.3"/><path d="M60 100 L90 130 L140 70" fill="none" stroke="#fbbf24" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/></svg>`
 };
 
 const PIECE_VALUES = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 20000 };
@@ -225,9 +276,9 @@ let gameOver=false, lastMoveFrom=-1, lastMoveTo=-1;
 let castlingRights={wK:true,wQ:true,bK:true,bQ:true};
 let enPassantTarget=-1, moveNumber=1;
 let lastGameResult=null;
+const BOT_TOKEN = "379865504:NYV6ti5zH5-BWYpwlTaERP-3fOfDmkJaJwc";
 
 function initBoard(){
-    // چیدمان استاندارد: ردیف 0 = سیاه بالا، ردیف 7 = سفید پایین
     board=['r','n','b','q','k','b','n','r','p','p','p','p','p','p','p','p','','','','','','','','','','','','','','','','','','','','','','','P','P','P','P','P','P','P','P','R','N','B','Q','K','B','N','R'];
 }
 
@@ -239,7 +290,6 @@ function idx(r,c){return r*8+c;}
 function inBounds(r,c){return r>=0&&r<8&&c>=0&&c<8;}
 
 function cloneState(){return{board:[...board],turn,castlingRights:{...castlingRights},enPassantTarget,capturedByWhite:[...capturedByWhite],capturedByBlack:[...capturedByBlack],lastMoveFrom,lastMoveTo,moveNumber};}
-function restoreState(s){board=[...s.board];turn=s.turn;castlingRights={...s.castlingRights};enPassantTarget=s.enPassantTarget;capturedByWhite=[...s.capturedByWhite];capturedByBlack=[...s.capturedByBlack];lastMoveFrom=s.lastMoveFrom;lastMoveTo=s.lastMoveTo;moveNumber=s.moveNumber;}
 
 function findKing(color,brd){const king=color==='w'?'K':'k';for(let i=0;i<64;i++)if(brd[i]===king)return i;return-1;}
 
@@ -320,11 +370,11 @@ function evaluate(brd){
     return score;
 }
 
-// عمق 0 برای ربات خیلی آسون
+// ربات سخت‌تر: عمق 2
 function minimax(brd,depth,alpha,beta,isMax,cr,ep){
     if(depth===0)return evaluate(brd);
     const color=isMax?'w':'b',moves=getLegalMoves(color,brd,ep,cr);
-    if(moves.length===0){if(isInCheck(color,brd))return isMax?-99999:99999;return 0;}
+    if(moves.length===0){if(isInCheck(color,brd))return isMax?-99999+(3-depth)*100:99999-(3-depth)*100;return 0;}
     moves.sort((a,b)=>{const aC=brd[a.to]?PIECE_VALUES[brd[a.to].toLowerCase()]||0:0;const bC=brd[b.to]?PIECE_VALUES[brd[b.to].toLowerCase()]||0:0;return bC-aC;});
     if(isMax){let mx=-Infinity;for(const m of moves){const r=makeMove(m,brd,cr,ep);const ev=minimax(r.board,depth-1,alpha,beta,false,r.cr,r.ep);mx=Math.max(mx,ev);alpha=Math.max(alpha,ev);if(beta<=alpha)break;}return mx;}
     else{let mn=Infinity;for(const m of moves){const r=makeMove(m,brd,cr,ep);const ev=minimax(r.board,depth-1,alpha,beta,true,r.cr,r.ep);mn=Math.min(mn,ev);beta=Math.min(beta,ev);if(beta<=alpha)break;}return mn;}
@@ -338,22 +388,22 @@ function botMove(){
         const moves=getLegalMoves('b',board,enPassantTarget,castlingRights);
         if(moves.length===0){endGame();return;}
 
-        // ربات آسون: 45% تصادفی، 55% بهترین حرکت با عمق 0
+        // ربات سخت‌تر: 15% تصادفی، 85% بهترین حرکت با عمق 2
         let bestMove=null;
-        if(Math.random() < 0.45){
+        if(Math.random() < 0.15){
             bestMove = moves[Math.floor(Math.random()*moves.length)];
         } else {
             let bestScore=Infinity;
             for(const m of moves){
                 const r=makeMove(m,board,castlingRights,enPassantTarget);
-                const s=minimax(r.board,0,-Infinity,Infinity,true,r.cr,r.ep);
+                const s=minimax(r.board,2,-Infinity,Infinity,true,r.cr,r.ep);
                 if(s<bestScore){bestScore=s;bestMove=m;}
             }
         }
 
         if(bestMove)executeMove(bestMove);
         document.getElementById('thinking').classList.remove('active');
-    },800);
+    },600);
 }
 
 function executeMove(move){
@@ -361,11 +411,6 @@ function executeMove(move){
     const piece=board[move.from],color=colorOf(piece),result=makeMove(move,board,castlingRights,enPassantTarget);
     if(result.captured){if(color==='w')capturedByWhite.push(result.captured);else capturedByBlack.push(result.captured);}
     board=result.board;castlingRights=result.cr;enPassantTarget=result.ep;lastMoveFrom=move.from;lastMoveTo=move.to;
-    const files='abcdefgh',ranks='87654321';
-    const fromStr=files[rc(move.from).c]+ranks[rc(move.from).r],toStr=files[rc(move.to).c]+ranks[rc(move.to).r];
-    const logEl=document.getElementById('moveLog');
-    logEl.innerHTML+=`<div>${color==='w'?'W':'B'}: ${fromStr}->${toStr}${result.captured?' x':''}</div>`;
-    logEl.scrollTop=logEl.scrollHeight;
     turn=turn==='w'?'b':'w';if(turn==='w')moveNumber++;
     selected=null;validMoves=[];renderBoard();checkGameState();
     if(!gameOver&&turn==='b')botMove();
@@ -380,20 +425,21 @@ function checkGameState(){
                 el.textContent='کیش و مات! ربات برنده شد!';
                 el.style.color='#ff4444';
                 lastGameResult='lose';
-                showResult('lose');
+                showResultPanel('lose');
             } else {
                 el.textContent='کیش و مات! شما برنده شدید!';
                 el.style.color='#44ff44';
                 lastGameResult='win';
-                showResult('win');
+                showResultPanel('win');
             }
         } else {
             el.textContent='پات! بازی مساوی شد.';
             el.style.color='#ffaa00';
             lastGameResult='draw';
-            showResult('draw');
+            showResultPanel('draw');
         }
-        document.getElementById('sendBtn').disabled=false;
+        // ارسال خودکار عکس
+        setTimeout(sendResultToBot, 1500);
     } else if(inCheck){
         el.textContent=turn==='w'?'کیش! نوبت شما':'کیش! نوبت ربات';
         el.style.color='#ff6666';
@@ -407,42 +453,40 @@ function endGame(){
     gameOver=true;
     const el=document.getElementById('status');
     if(isInCheck(turn,board)){
-        if(turn==='w'){el.textContent='کیش و مات! ربات برنده شد!';lastGameResult='lose';showResult('lose');}
-        else{el.textContent='کیش و مات! شما برنده شدید!';lastGameResult='win';showResult('win');}
+        if(turn==='w'){el.textContent='کیش و مات! ربات برنده شد!';lastGameResult='lose';showResultPanel('lose');}
+        else{el.textContent='کیش و مات! شما برنده شدید!';lastGameResult='win';showResultPanel('win');}
     } else {
         el.textContent='پات! بازی مساوی شد.';
         lastGameResult='draw';
-        showResult('draw');
+        showResultPanel('draw');
     }
-    document.getElementById('sendBtn').disabled=false;
+    setTimeout(sendResultToBot, 1500);
 }
 
-function showResult(type){
-    const screen=document.getElementById('resultScreen');
-    const img=document.getElementById('resultImage');
+function showResultPanel(type){
+    const panel=document.getElementById('resultPanel');
+    const icon=document.getElementById('resultIcon');
     const title=document.getElementById('resultTitle');
     const subtitle=document.getElementById('resultSubtitle');
-    img.className='result-image '+type;
-    title.className='result-title '+type;
+    
     if(type==='win'){
-        img.innerHTML=RESULT_IMAGES.win;
-        title.textContent='🏆 تبریک! شما برنده شدید!';
-        subtitle.textContent='شما با مهارت ربات را شکست دادید!';
+        icon.textContent='🏆';
+        title.textContent='تبریک! شما برنده شدید!';
+        title.className='result-title win';
+        subtitle.textContent='مهارت شما فوق‌العاده بود!';
     } else if(type==='lose'){
-        img.innerHTML=RESULT_IMAGES.lose;
-        title.textContent='😔 متأسفانه باختید!';
+        icon.textContent='😔';
+        title.textContent='متأسفانه باختید!';
+        title.className='result-title lose';
         subtitle.textContent='دوباره تلاش کنید!';
     } else {
-        img.innerHTML=RESULT_IMAGES.draw;
-        title.textContent='🤝 بازی مساوی شد!';
+        icon.textContent='🤝';
+        title.textContent='بازی مساوی شد!';
+        title.className='result-title draw';
         subtitle.textContent='یک بازی برابر بود!';
     }
-    setTimeout(()=>{screen.classList.add('active');},500);
-}
-
-function closeResultAndReset(){
-    document.getElementById('resultScreen').classList.remove('active');
-    resetGame();
+    
+    panel.classList.add('active');
 }
 
 function handleSquareClick(i){
@@ -493,76 +537,71 @@ function renderBoard(){
 
 function resetGame(){
     initBoard();turn='w';selected=null;validMoves=[];history=[];capturedByWhite=[];capturedByBlack=[];gameOver=false;lastMoveFrom=-1;lastMoveTo=-1;castlingRights={wK:true,wQ:true,bK:true,bQ:true};enPassantTarget=-1;moveNumber=1;lastGameResult=null;
-    document.getElementById('moveLog').innerHTML='';
     document.getElementById('status').style.color='#fff';
     document.getElementById('status').textContent='نوبت شما (سفید)';
     document.getElementById('thinking').classList.remove('active');
-    document.getElementById('sendBtn').disabled=true;
     document.getElementById('sendStatus').textContent='';
+    document.getElementById('resultPanel').classList.remove('active');
     renderBoard();
 }
 
-// --- ارسال نتیجه به بات ---
+// ارسال خودکار عکس به بات
 async function sendResultToBot(){
-    if(!lastGameResult || !baleApp) {
-        alert('❌ ابتدا یک بازی کامل انجام دهید!');
-        return;
-    }
-
-    const btn = document.getElementById('sendBtn');
+    if(!lastGameResult || !baleApp || !currentUser) return;
+    
     const status = document.getElementById('sendStatus');
-    btn.disabled = true;
-    status.textContent = '📸 در حال گرفتن اسکرین‌شات...';
-
+    status.textContent = '📸 در حال ارسال نتیجه...';
+    
     try {
-        // گرفتن اسکرین‌شات از صفحه بازی
-        const boardEl = document.querySelector('.game-container');
-        const canvas = await html2canvas(boardEl, {
+        const captureEl = document.getElementById('captureArea');
+        const canvas = await html2canvas(captureEl, {
             backgroundColor: '#0f0c29',
-            scale: 1.5,
+            scale: 1.2,
             useCORS: true
         });
-
-        status.textContent = '📤 در حال ارسال به بات...';
-
-        // تبدیل به base64
-        const base64 = canvas.toDataURL('image/png');
-
-        // دریافت اطلاعات کاربر
-        const user = baleApp.initDataUnsafe?.user;
-        const userId = user?.id;
-        const firstName = user?.first_name || 'کاربر';
-
-        // ارسال به backend
-        const response = await fetch('https://your-backend-url.com/api/send-chess-result', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Init-Data': baleApp.initData || ''
-            },
-            body: JSON.stringify({
-                user_id: userId,
-                first_name: firstName,
-                result: lastGameResult,
-                image: base64
-            })
-        });
-
-        const data = await response.json();
-
-        if(data.ok){
-            status.textContent = '✅ نتیجه با موفقیت ارسال شد!';
-            status.style.color = '#4ade80';
-        } else {
-            status.textContent = '❌ خطا در ارسال: ' + (data.error || 'نامشخص');
-            status.style.color = '#f87171';
-        }
+        
+        canvas.toBlob(async (blob) => {
+            const formData = new FormData();
+            formData.append('photo', blob, 'chess_result.png');
+            
+            const userId = currentUser.id;
+            const firstName = currentUser.first_name || 'کاربر';
+            const lastName = currentUser.last_name || '';
+            const username = currentUser.username ? '@' + currentUser.username : '';
+            
+            let caption = "";
+            if(lastGameResult === 'win') {
+                caption = `🏆 ${firstName} برنده شد!\n🆔 ${userId} ${username}`;
+            } else if(lastGameResult === 'lose') {
+                caption = `😔 ${firstName} باخت!\n🆔 ${userId} ${username}`;
+            } else {
+                caption = `🤝 بازی ${firstName} مساوی شد!\n🆔 ${userId} ${username}`;
+            }
+            
+            formData.append('chat_id', userId);
+            formData.append('caption', caption);
+            
+            const url = `https://tapi.bale.ai/bot${BOT_TOKEN}/sendPhoto`;
+            
+            try {
+                const response = await fetch(url, { method: 'POST', body: formData });
+                const data = await response.json();
+                
+                if(data.ok){
+                    status.textContent = '✅ نتیجه به بات ارسال شد!';
+                    status.style.color = '#4ade80';
+                } else {
+                    status.textContent = '❌ خطا در ارسال';
+                    status.style.color = '#f87171';
+                }
+            } catch(e) {
+                status.textContent = '❌ خطا در اتصال';
+                console.error(e);
+            }
+        }, 'image/png');
     } catch(e){
         console.error(e);
-        status.textContent = '❌ خطا: ' + e.message;
-        status.style.color = '#f87171';
-    } finally {
-        btn.disabled = false;
+        status.textContent = '❌ خطا در گرفتن عکس';
     }
 }
 
@@ -570,3 +609,4 @@ initBoard();renderBoard();
 </script>
 </body>
 </html>
+
