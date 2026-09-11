@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BLE Game</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Tahoma, Arial, sans-serif;
+      background:
+        radial-gradient(circle at top, #29346d 0%, #10142d 45%, #070914 100%);
+      color: white;
+      overflow-x: hidden;
+    }
+
+    .app {
+      width: min(480px, 100%);
+      margin: auto;
+      padding: 20px 15px 35px;
+    }
+
+    .header {
+      text-align: center;
+      padding: 20px 10px 15px;
+    }
+
+    .logo {
+      width: 82px;
+      height: 82px;
+      margin: auto;
+      border-radius: 25px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 42px;
+      background: linear-gradient(135deg, #6c63ff, #9c4dff);
+      box-shadow: 0 12px 35px rgba(108,99,255,.35);
+    }
+
+    h1 {
+      margin: 15px 0 5px;
+      font-size: 30px;
+    }
+
+    .subtitle {
+      color: #aeb5d5;
+      font-size: 14px;
+    }
+
+    .balance {
+      margin: 18px 0;
+      padding: 15px;
+      border-radius: 18px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.08);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .balance strong {
+      color: #ffd86b;
+      font-size: 20px;
+    }
+
+    .games {
+      display: grid;
+      gap: 13px;
+    }
+
+    .game-card {
+      border: 0;
+      width: 100%;
+      color: white;
+      text-align: right;
+      padding: 19px;
+      border-radius: 20px;
+      background: rgba(255,255,255,.09);
+      border: 1px solid rgba(255,255,255,.08);
+      cursor: pointer;
+      transition: .2s;
+    }
+
+    .game-card:active {
+      transform: scale(.97);
+    }
+
+    .game-icon {
+      font-size: 35px;
+      margin-bottom: 7px;
+    }
+
+    .game-title {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .game-description {
+      margin-top: 5px;
+      color: #aeb5d5;
+      font-size: 13px;
+    }
+
+    .screen {
+      display: none;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    .back {
+      border: 0;
+      background: rgba(255,255,255,.1);
+      color: white;
+      padding: 10px 15px;
+      border-radius: 12px;
+      cursor: pointer;
+      margin-bottom: 15px;
+    }
+
+    .panel {
+      background: rgba(255,255,255,.08);
+      border-radius: 22px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .choices {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin: 25px 0;
+    }
+
+    .choice {
+      width: 85px;
+      height: 85px;
+      border: 0;
+      border-radius: 20px;
+      font-size: 38px;
+      background: rgba(255,255,255,.1);
+      cursor: pointer;
+    }
+
+    .result {
+      min-height: 50px;
+      font-size: 17px;
+      font-weight: bold;
+    }
+
+    .coin {
+      width: 130px;
+      height: 130px;
+      margin: 25px auto;
+      border-radius: 50%;
+      background: linear-gradient(135deg,#ffd76a,#ffad22);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 55px;
+      color: #5c3a00;
+      box-shadow: 0 12px 30px rgba(255,190,60,.3);
+    }
+
+    .main-btn {
+      border: 0;
+      width: 100%;
+      padding: 15px;
+      border-radius: 15px;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      background: linear-gradient(135deg,#665cff,#9c4dff);
+      cursor: pointer;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      max-width: 330px;
+      margin: 25px auto;
+    }
+
+    .cell {
+      aspect-ratio: 1;
+      border: 0;
+      border-radius: 15px;
+      background: rgba(255,255,255,.1);
+      color: white;
+      font-size: 42px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 30px;
+      color: #777f9e;
+      font-size: 12px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <!-- HOME -->
+  <section id="home" class="screen active">
+
+    <header class="header">
+      <div class="logo">🎮</div>
+      <h1>BLE GAME</h1>
+      <div class="subtitle">دنیای بازی‌های کوچک و سرگرم‌کننده</div>
+    </header>
+
+    <div class="balance">
+      <span>🪙 سکه‌های شما</span>
+      <strong id="coins">100</strong>
+    </div>
+
+    <div class="games">
+
+      <button class="game-card" onclick="openGame('rps')">
+        <div class="game-icon">✊</div>
+        <div class="game-title">سنگ کاغذ قیچی</div>
+        <div class="game-description">با ربات رقابت کن!</div>
+      </button>
+
+      <button class="game-card" onclick="openGame('coin')">
+        <div class="game-icon">🪙</div>
+        <div class="game-title">شیر یا خط</div>
+        <div class="game-description">شانس خودت رو امتحان کن</div>
+      </button>
+
+      <button class="game-card" onclick="openGame('ttt')">
+        <div class="game-icon">❌⭕</div>
+        <div class="game-title">دوز</div>
+        <div class="game-description">در برابر ربات بازی کن</div>
+      </button>
+
+    </div>
+
+    <div class="footer">
+      BLE GAME • Mini App
+    </div>
+
+  </section>
+
+
+  <!-- ROCK PAPER SCISSORS -->
+  <section id="rps" class="screen">
+
+    <button class="back" onclick="goHome()">← برگشت</button>
+
+    <div class="panel">
+      <h2>✊ سنگ کاغذ قیچی</h2>
+
+      <div class="choices">
+        <button class="choice" onclick="playRPS('rock')">✊</button>
+        <button class="choice" onclick="playRPS('paper')">✋</button>
+        <button class="choice" onclick="playRPS('scissors')">✌️</button>
+      </div>
+
+      <div id="rpsResult" class="result">
+        یکی رو انتخاب کن!
+      </div>
+    </div>
+
+  </section>
+
+
+  <!-- COIN -->
+  <section id="coin" class="screen">
+
+    <button class="back" onclick="goHome()">← برگشت</button>
+
+    <div class="panel">
+      <h2>🪙 شیر یا خط</h2>
+
+      <div id="coinDisplay" class="coin">🪙</div>
+
+      <button class="main-btn" onclick="flipCoin()">
+        پرتاب سکه
+      </button>
+
+      <div id="coinResult" class="result"></div>
+    </div>
+
+  </section>
+
+
+  <!-- TIC TAC TOE -->
+  <section id="ttt" class="screen">
+
+    <button class="back" onclick="goHome()">← برگشت</button>
+
+    <div class="panel">
+
+      <h2>❌⭕ دوز</h2>
+
+      <div id="board" class="board"></div>
+
+      <div id="tttResult" class="result">
+        نوبت شماست ❌
+      </div>
+
+      <button class="main-btn" onclick="newGame()">
+        بازی جدید
+      </button>
+
+    </div>
+
+  </section>
+
+</div>
+
+
+<script>
+
+let coins = 100;
+
+function updateCoins() {
+  document.getElementById("coins").textContent = coins;
+}
+
+function openGame(id) {
+
+  document.querySelectorAll(".screen").forEach(
+    s => s.classList.remove("active")
+  );
+
+  document.getElementById(id).classList.add("active");
+
+  if (id === "ttt") {
+    newGame();
+  }
+}
+
+function goHome() {
+
+  document.querySelectorAll(".screen").forEach(
+    s => s.classList.remove("active")
+  );
+
+  document.getElementById("home").classList.add("active");
+}
+
+
+/* RPS */
+
+function playRPS(player) {
+
+  const choices = ["rock", "paper", "scissors"];
+
+  const bot = choices[Math.floor(Math.random() * 3)];
+
+  const names = {
+    rock: "✊ سنگ",
+    paper: "✋ کاغذ",
+    scissors: "✌️ قیچی"
+  };
+
+  let result = "";
+
+  if (player === bot) {
+
+    result = "🤝 مساوی شد!";
+
+  } else if (
+    (player === "rock" && bot === "scissors") ||
+    (player === "paper" && bot === "rock") ||
+    (player === "scissors" && bot === "paper")
+  ) {
+
+    result = "🎉 بردی! +10 سکه";
+    coins += 10;
+
+  } else {
+
+    result = "😅 باختی! -5 سکه";
+    coins = Math.max(0, coins - 5);
+
+  }
+
+  updateCoins();
+
+  document.getElementById("rpsResult").innerHTML =
+    `شما: ${names[player]}<br>
+     ربات: ${names[bot]}<br><br>
+     ${result}`;
+}
+
+
+/* COIN */
+
+function flipCoin() {
+
+  const display = document.getElementById("coinDisplay");
+  const result = document.getElementById("coinResult");
+
+  display.textContent = "🔄";
+  result.textContent = "در حال پرتاب...";
+
+  setTimeout(() => {
+
+    const heads = Math.random() < .5;
+
+    if (heads) {
+
+      display.textContent = "🦁";
+      result.textContent = "شیر آمد! 🎉 +5 سکه";
+      coins += 5;
+
+    } else {
+
+      display.textContent = "🔵";
+      result.textContent = "خط آمد! 😄 +2 سکه";
+      coins += 2;
+
+    }
+
+    updateCoins();
+
+  }, 700);
+}
+
+
+/* TIC TAC TOE */
+
+let board = [];
+let gameOver = false;
+
+function newGame() {
+
+  board = ["","","","","","","","",""];
+  gameOver = false;
+
+  renderBoard();
+
+  document.getElementById("tttResult").textContent =
+    "نوبت شماست ❌";
+}
+
+function renderBoard() {
+
+  const boardElement = document.getElementById("board");
+
+  boardElement.innerHTML = "";
+
+  board.forEach((value, index) => {
+
+    const cell = document.createElement("button");
+
+    cell.className = "cell";
+    cell.textContent = value;
+
+    cell.onclick = () => playerMove(index);
+
+    boardElement.appendChild(cell);
+
+  });
+}
+
+function playerMove(index) {
+
+  if (board[index] || gameOver) return;
+
+  board[index] = "❌";
+
+  renderBoard();
+
+  if (checkWinner("❌")) {
+
+    gameOver = true;
+
+    document.getElementById("tttResult").textContent =
+      "🎉 بردی! +20 سکه";
+
+    coins += 20;
+    updateCoins();
+
+    return;
+  }
+
+  if (!board.includes("")) {
+
+    gameOver = true;
+
+    document.getElementById("tttResult").textContent =
+      "🤝 مساوی شد!";
+
+    return;
+  }
+
+  document.getElementById("tttResult").textContent =
+    "نوبت ربات ⭕";
+
+  setTimeout(botMove, 450);
+}
+
+function botMove() {
+
+  if (gameOver) return;
+
+  const empty = [];
+
+  board.forEach((v, i) => {
+    if (!v) empty.push(i);
+  });
+
+  if (!empty.length) return;
+
+  const index = empty[Math.floor(Math.random() * empty.length)];
+
+  board[index] = "⭕";
+
+  renderBoard();
+
+  if (checkWinner("⭕")) {
+
+    gameOver = true;
+
+    document.getElementById("tttResult").textContent =
+      "😅 ربات برد!";
+
+    return;
+  }
+
+  if (!board.includes("")) {
+
+    gameOver = true;
+
+    document.getElementById("tttResult").textContent =
+      "🤝 مساوی شد!";
+
+    return;
+  }
+
+  document.getElementById("tttResult").textContent =
+    "نوبت شماست ❌";
+}
+
+function checkWinner(player) {
+
+  const wins = [
+    [0,1,2],
+    [3,4,5],
+    [6,7,8],
+    [0,3,6],
+    [1,4,7],
+    [2,5,8],
+    [0,4,8],
+    [2,4,6]
+  ];
+
+  return wins.some(
+    combination =>
+      combination.every(index => board[index] === player)
+  );
+}
+
+updateCoins();
+
+</script>
+
+</body>
+</html>
