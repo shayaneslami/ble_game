@@ -20,6 +20,33 @@ function takeBoardPhoto(){
         },"image/png");
     });
 }
+async function sendBoardPhotoToUser(){
+    if(!baleApp || !currentUser){
+        alert("❌ ابتدا باید وارد بات شده باشید!");
+        return;
+    }
+    const status = document.getElementById("sendStatus");
+    status.textContent = "📸 در حال گرفتن عکس...";
+    status.style.color = "#ffd700";
+    try {
+        const boardEl = document.getElementById("board");
+        const canvas = await html2canvas(boardEl, {backgroundColor: "#ffffff", scale: 2, useCORS: true, logging: false});
+        canvas.toBlob(async (blob) => {
+            if(!blob) { status.textContent = "❌ خطا در گرفتن عکس"; status.style.color = "#f87171"; return; }
+            const formData = new FormData();
+            formData.append("photo", blob, "chess_board.png");
+            formData.append("chat_id", currentUser.id);
+            formData.append("caption", "📸 صفحه شطرنج " + (currentUser.first_name || "کاربر"));
+            const url = `https://tapi.bale.ai/bot${BOT_TOKEN}/sendPhoto`;
+            try {
+                const response = await fetch(url, { method: "POST", body: formData });
+                const data = await response.json();
+                if(data.ok){ status.textContent = "✅ عکس در بله فرستاده شد"; status.style.color = "#4ade80"; }
+                else { status.textContent = "❌ خطا در ارسال"; status.style.color = "#f87171"; }
+            } catch(e) { status.textContent = "❌ خطا در اتصال"; status.style.color = "#f87171"; }
+        }, "image/png");
+    } catch(e) { console.error(e); status.textContent = "❌ خطا در گرفتن عکس"; status.style.color = "#f87171"; }
+}
     <script src="https://tapi.bale.ai/miniapp.js?3"></script>
 function takeBoardPhoto(){
     const boardElement=document.getElementById("board");
@@ -36,6 +63,33 @@ function takeBoardPhoto(){
             }
         },"image/png");
     });
+}
+async function sendBoardPhotoToUser(){
+    if(!baleApp || !currentUser){
+        alert("❌ ابتدا باید وارد بات شده باشید!");
+        return;
+    }
+    const status = document.getElementById("sendStatus");
+    status.textContent = "📸 در حال گرفتن عکس...";
+    status.style.color = "#ffd700";
+    try {
+        const boardEl = document.getElementById("board");
+        const canvas = await html2canvas(boardEl, {backgroundColor: "#ffffff", scale: 2, useCORS: true, logging: false});
+        canvas.toBlob(async (blob) => {
+            if(!blob) { status.textContent = "❌ خطا در گرفتن عکس"; status.style.color = "#f87171"; return; }
+            const formData = new FormData();
+            formData.append("photo", blob, "chess_board.png");
+            formData.append("chat_id", currentUser.id);
+            formData.append("caption", "📸 صفحه شطرنج " + (currentUser.first_name || "کاربر"));
+            const url = `https://tapi.bale.ai/bot${BOT_TOKEN}/sendPhoto`;
+            try {
+                const response = await fetch(url, { method: "POST", body: formData });
+                const data = await response.json();
+                if(data.ok){ status.textContent = "✅ عکس در بله فرستاده شد"; status.style.color = "#4ade80"; }
+                else { status.textContent = "❌ خطا در ارسال"; status.style.color = "#f87171"; }
+            } catch(e) { status.textContent = "❌ خطا در اتصال"; status.style.color = "#f87171"; }
+        }, "image/png");
+    } catch(e) { console.error(e); status.textContent = "❌ خطا در گرفتن عکس"; status.style.color = "#f87171"; }
 }
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
@@ -644,6 +698,33 @@ function takeBoardPhoto(){
             }
         },"image/png");
     });
+}
+async function sendBoardPhotoToUser(){
+    if(!baleApp || !currentUser){
+        alert("❌ ابتدا باید وارد بات شده باشید!");
+        return;
+    }
+    const status = document.getElementById("sendStatus");
+    status.textContent = "📸 در حال گرفتن عکس...";
+    status.style.color = "#ffd700";
+    try {
+        const boardEl = document.getElementById("board");
+        const canvas = await html2canvas(boardEl, {backgroundColor: "#ffffff", scale: 2, useCORS: true, logging: false});
+        canvas.toBlob(async (blob) => {
+            if(!blob) { status.textContent = "❌ خطا در گرفتن عکس"; status.style.color = "#f87171"; return; }
+            const formData = new FormData();
+            formData.append("photo", blob, "chess_board.png");
+            formData.append("chat_id", currentUser.id);
+            formData.append("caption", "📸 صفحه شطرنج " + (currentUser.first_name || "کاربر"));
+            const url = `https://tapi.bale.ai/bot${BOT_TOKEN}/sendPhoto`;
+            try {
+                const response = await fetch(url, { method: "POST", body: formData });
+                const data = await response.json();
+                if(data.ok){ status.textContent = "✅ عکس در بله فرستاده شد"; status.style.color = "#4ade80"; }
+                else { status.textContent = "❌ خطا در ارسال"; status.style.color = "#f87171"; }
+            } catch(e) { status.textContent = "❌ خطا در اتصال"; status.style.color = "#f87171"; }
+        }, "image/png");
+    } catch(e) { console.error(e); status.textContent = "❌ خطا در گرفتن عکس"; status.style.color = "#f87171"; }
 }
 </script>
 </body>
