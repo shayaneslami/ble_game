@@ -262,7 +262,16 @@ let lastGameResult=null;
 const BOT_TOKEN = "379865504:NYV6ti5zH5-BWYpwlTaERP-3fOfDmkJaJwc";
 
 function initBoard(){
-    board=['r','n','b','q','k','b','n','r','p','p','p','p','p','p','p','p','','','','','','','','','','','','','','','','','','','','','','','P','P','P','P','P','P','P','P','R','N','B','Q','K','B','N','R'];
+    board=[
+        "r","n","b","q","k","b","n","r",
+        "p","p","p","p","p","p","p","p",
+        "","","","","","","","",
+        "","","","","","","","",
+        "","","","","","","","",
+        "","","","","","","","",
+        "P","P","P","P","P","P","P","P",
+        "R","N","B","Q","K","B","N","R"
+    ];
 }
 
 function isWhite(p){return p&&p===p.toUpperCase();}
