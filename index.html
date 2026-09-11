@@ -364,7 +364,7 @@ function botMove(){
         // جستجوی عمیق ۴ لایه برای پیدا کردن بهترین حرکت
         for(const m of moves){
             const r = makeMove(m, board, castlingRights, enPassantTarget);
-            const s = minimax(r.board, 4, -Infinity, Infinity, botColor==='w', r.cr, r.ep);
+            const s = minimax(r.board, 2, -Infinity, Infinity, botColor==='w', r.cr, r.ep);
             
             if(botColor === 'w'){ 
                 if(s > bestScore){ bestScore = s; bestMove = m; } 
