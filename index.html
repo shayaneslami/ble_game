@@ -326,9 +326,83 @@ function getLegalMoves(color,brd,ep,cr){
  return legal;
 }
 function evaluate(brd){
- let score=0;
- for(let i=0;i<64;i++){const p=brd[i];if(!p)continue;const type=p.toLowerCase(),val=PIECE_VALUES[type]||0,pst=PST[type]||[];if(isWhite(p))score+=val+(pst[i]||0);else score-=val+(pst[63-i]||0);}
- return score;
+    let score=0;
+    const centerSquares = [27,28,35,36];
+    const extendedCenter = [18,19,20,21,26,27,28,29,34,35,36,37,42,43,44,45];
+    
+    for(let i=0;i<64;i++){
+        const p=brd[i];
+        if(!p)continue;
+        const type=p.toLowerCase();
+        const val=PIECE_VALUES[type]||0;
+        const pst=PST[type]||[];
+        let posBonus = isWhite(p) ? (pst[i]||0) : (pst[63-i]||0);
+        
+        // کنترل مرکز
+        if(centerSquares.includes(i)) posBonus += 25;
+        else if(extendedCenter.includes(i)) posBonus += 12;
+        
+        // جفت فیل
+        if(type==='b'){
+            const bishops = brd.filter(x=>x===(isWhite(p)?'B':'b')).length;
+            if(bishops>=2) posBonus += 35;
+        }
+        
+        // جفت اسب
+        if(type==='n'){
+            const knights = brd.filter(x=>x===(isWhite(p)?'N':'n')).length;
+            if(knights>=2) posBonus += 25;
+        }
+        
+        // جریمه مهره‌های توسعه نیافته
+        if(type==='n' && (i===1||i===6||i===57||i===62)) posBonus -= 20;
+        if(type==='b' && (i===2||i===5||i===58||i===61)) posBonus -= 15;
+        if(type==='q' && (i===3||i===59)) posBonus -= 10;
+        
+        // امنیت شاه
+        if(type==='k'){
+            const row = Math.floor(i/8);
+            const col = i%8;
+            if((isWhite(p) && row===0) || (!isWhite(p) && row===7)){
+                if(col>=2 && col<=5){
+                    // قلعه رفته
+                    posBonus += 30;
+                    // بررسی پیاده‌های محافظ
+                    const pawnRow = isWhite(p) ? 1 : 6;
+                    const pawns = [col-1, col, col+1].filter(c => c>=0 && c<8 && brd[pawnRow*8+c]===(isWhite(p)?'P':'p'));
+                    posBonus += pawns.length * 15;
+                }
+            }
+        }
+        
+        // پیشرفت سربازها
+        if(type==='p'){
+            const row = Math.floor(i/8);
+            const advance = isWhite(p) ? (6-row) : (row-1);
+            posBonus += advance * 10;
+            // سربازهای ایزوله جریمه
+            const col = i%8;
+            const hasNeighbor = brd.filter((x,idx) => {
+                const r = Math.floor(idx/8);
+                const c = idx%8;
+                return x===(isWhite(p)?'P':'p') && r===row && Math.abs(c-col)===1;
+            }).length > 0;
+            if(!hasNeighbor && advance > 2) posBonus -= 10;
+        }
+        
+        // کنترل خطوط باز برای رخ
+        if(type==='r'){
+            const row = Math.floor(i/8);
+            const col = i%8;
+            const openFile = !brd.some((x,idx) => idx%8===col && x && x.toLowerCase()==='p');
+            if(openFile) posBonus += 20;
+        }
+        
+        if(isWhite(p)) score += val + posBonus;
+        else score -= val + posBonus;
+    }
+    
+    return score;
 }
 function minimax(brd,depth,alpha,beta,isMax,cr,ep){
  if(depth===0)return evaluate(brd);
@@ -339,7 +413,9 @@ function minimax(brd,depth,alpha,beta,isMax,cr,ep){
         const bC=brd[b.to]?PIECE_VALUES[brd[b.to].toLowerCase()]||0:0;
         const aPromo=a.promo?(a.promo==='q'?900:a.promo==='r'?500:300):0;
         const bPromo=b.promo?(b.promo==='q'?900:b.promo==='r'?500:300):0;
-        return (bC+bPromo)-(aC+aPromo);
+        const aCheck=isInCheck(botColor,makeMove(a,brd,castlingRights,enPassantTarget).board)?100:0;
+        const bCheck=isInCheck(botColor,makeMove(b,brd,castlingRights,enPassantTarget).board)?100:0;
+        return (bC+bPromo+bCheck)-(aC+aPromo+aCheck);
     });
  if(isMax){let mx=-Infinity;for(const m of moves){const r=makeMove(m,brd,cr,ep);const ev=minimax(r.board,depth-1,alpha,beta,false,r.cr,r.ep);mx=Math.max(mx,ev);alpha=Math.max(alpha,ev);if(beta<=alpha)break;}return mx;}
  else{let mn=Infinity;for(const m of moves){const r=makeMove(m,brd,cr,ep);const ev=minimax(r.board,depth-1,alpha,beta,true,r.cr,r.ep);mn=Math.min(mn,ev);beta=Math.min(beta,ev);if(beta<=alpha)break;}return mn;}
@@ -358,14 +434,14 @@ function botMove(){
  let bestScore=botColor==='w'?-Infinity:Infinity;
  for(const m of moves){
  const r=makeMove(m,board,castlingRights,enPassantTarget);
- const s=minimax(r.board,3,-Infinity,Infinity,botColor==='w',r.cr,r.ep);
+ const s=minimax(r.board,4,-Infinity,Infinity,botColor==='w',r.cr,r.ep);
  if(botColor==='w'){if(s>bestScore){bestScore=s;bestMove=m;}}
  else{if(s<bestScore){bestScore=s;bestMove=m;}}
  }
  }
  if(bestMove)executeMove(bestMove);
  document.getElementById('thinking').classList.remove('active');
- },100);
+ },200);
 }
 function executeMove(move){
  history.push(cloneState());
