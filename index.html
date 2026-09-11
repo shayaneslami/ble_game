@@ -346,13 +346,13 @@ function botMove(){
  const moves=getLegalMoves(botColor,board,enPassantTarget,castlingRights);
  if(moves.length===0){endGame();return;}
  let bestMove=null;
- if(Math.random() < 0.15){
+ if(Math.random() < 0.03){
  bestMove = moves[Math.floor(Math.random()*moves.length)];
  } else {
  let bestScore=botColor==='w'?-Infinity:Infinity;
  for(const m of moves){
  const r=makeMove(m,board,castlingRights,enPassantTarget);
- const s=minimax(r.board,2,-Infinity,Infinity,botColor==='w',r.cr,r.ep);
+ const s=minimax(r.board,3,-Infinity,Infinity,botColor==='w',r.cr,r.ep);
  if(botColor==='w'){if(s>bestScore){bestScore=s;bestMove=m;}}
  else{if(s<bestScore){bestScore=s;bestMove=m;}}
  }
