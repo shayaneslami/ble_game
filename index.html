@@ -325,17 +325,28 @@ function getLegalMoves(color,brd,ep,cr){
  for(const move of pseudo){const result=makeMove(move,brd,cr,ep);if(!isInCheck(color,result.board))legal.push(move);}
  return legal;
 }
-function evaluate(brd){
-    let score=0;
-    for(let i=0;i<64;i++){
-        const p=brd[i]; if(!p) continue;
-        const type=p.toLowerCase();
-        const val=PIECE_VALUES[type]||0;
-        const pst=PST[type]||[];
-        if(isWhite(p)) score += val + (pst[i]||0);
-        else score -= val + (pst[63-i]||0);
+function evaluate(brd, color){
+    let score = 0;
+    const enemy = color === 'w' ? 'b' : 'w';
+    
+    for(let i=0; i<64; i++){
+        const p = brd[i];
+        if(!p) continue;
+        const type = p.toLowerCase();
+        const val = PIECE_VALUES[type] || 0;
+        const pst = PST[type] || [];
+        const posBonus = isWhite(p) ? (pst[i]||0) : (pst[63-i]||0);
+        
+        if(isWhite(p)) score += val + posBonus;
+        else score -= val + posBonus;
     }
-    return score;
+    
+    // Mobility bonus - تعداد حرکات قانونی
+    const myMoves = getLegalMoves(color, brd, -1, {wK:true,wQ:true,bK:true,bQ:true}).length;
+    const enemyMoves = getLegalMoves(enemy, brd, -1, {wK:true,wQ:true,bK:true,bQ:true}).length;
+    score += (myMoves - enemyMoves) * 5;
+    
+    return color === 'w' ? score : -score;
 }
 function minimax(brd,depth,alpha,beta,isMax,cr,ep){
  if(depth===0)return evaluate(brd);
@@ -361,10 +372,9 @@ function botMove(){
         let bestMove = null;
         let bestScore = botColor === 'w' ? -Infinity : Infinity;
         
-        // جستجوی عمیق ۴ لایه برای پیدا کردن بهترین حرکت
         for(const m of moves){
             const r = makeMove(m, board, castlingRights, enPassantTarget);
-            const s = minimax(r.board, 2, -Infinity, Infinity, botColor==='w', r.cr, r.ep);
+            const s = minimax(r.board, 3, -Infinity, Infinity, botColor==='w', r.cr, r.ep);
             
             if(botColor === 'w'){ 
                 if(s > bestScore){ bestScore = s; bestMove = m; } 
@@ -375,7 +385,7 @@ function botMove(){
         
         if(bestMove) executeMove(bestMove);
         document.getElementById('thinking').classList.remove('active');
-    }, 1000);
+    }, 500);
 }
 function executeMove(move){
  history.push(cloneState());
