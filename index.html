@@ -328,13 +328,12 @@ function getLegalMoves(color,brd,ep,cr){
 function evaluate(brd){
     let score=0;
     for(let i=0;i<64;i++){
-        const p=brd[i];
-        if(!p)continue;
+        const p=brd[i]; if(!p) continue;
         const type=p.toLowerCase();
         const val=PIECE_VALUES[type]||0;
         const pst=PST[type]||[];
-        if(isWhite(p)) score+=val+(pst[i]||0);
-        else score-=val+(pst[63-i]||0);
+        if(isWhite(p)) score += val + (pst[i]||0);
+        else score -= val + (pst[63-i]||0);
     }
     return score;
 }
@@ -351,23 +350,32 @@ function minimax(brd,depth,alpha,beta,isMax,cr,ep){
  else{let mn=Infinity;for(const m of moves){const r=makeMove(m,brd,cr,ep);const ev=minimax(r.board,depth-1,alpha,beta,true,r.cr,r.ep);mn=Math.min(mn,ev);beta=Math.min(beta,ev);if(beta<=alpha)break;}return mn;}
 }
 function botMove(){
-    if(gameOver||turn!==botColor)return;
+    if(gameOver || turn !== botColor) return;
     document.getElementById('thinking').classList.add('active');
     updateStatus();
+    
     setTimeout(()=>{
-        const moves=getLegalMoves(botColor,board,enPassantTarget,castlingRights);
-        if(moves.length===0){endGame();return;}
-        let bestMove=null;
-        let bestScore=botColor==='w'?-Infinity:Infinity;
+        const moves = getLegalMoves(botColor, board, enPassantTarget, castlingRights);
+        if(moves.length === 0){ endGame(); return; }
+        
+        let bestMove = null;
+        let bestScore = botColor === 'w' ? -Infinity : Infinity;
+        
+        // جستجوی عمیق ۴ لایه برای پیدا کردن بهترین حرکت
         for(const m of moves){
-            const r=makeMove(m,board,castlingRights,enPassantTarget);
-            const s=minimax(r.board,2,-Infinity,Infinity,botColor==='w',r.cr,r.ep);
-            if(botColor==='w'){if(s>bestScore){bestScore=s;bestMove=m;}}
-            else{if(s<bestScore){bestScore=s;bestMove=m;}}
+            const r = makeMove(m, board, castlingRights, enPassantTarget);
+            const s = minimax(r.board, 4, -Infinity, Infinity, botColor==='w', r.cr, r.ep);
+            
+            if(botColor === 'w'){ 
+                if(s > bestScore){ bestScore = s; bestMove = m; } 
+            } else { 
+                if(s < bestScore){ bestScore = s; bestMove = m; } 
+            }
         }
-        if(bestMove)executeMove(bestMove);
+        
+        if(bestMove) executeMove(bestMove);
         document.getElementById('thinking').classList.remove('active');
-    },1000);
+    }, 1000);
 }
 function executeMove(move){
  history.push(cloneState());
