@@ -4,7 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>شطرنج شایان</title>
+function takeBoardPhoto(){
+    const boardElement=document.getElementById("board");
+    html2canvas(boardElement,{backgroundColor:"#ffffff",scale:2}).then(canvas=>{
+        canvas.toBlob(blob=>{
+            const file=new File([blob],"chess.png",{type:"image/png"});
+            if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
+                navigator.share({files:[file],title:"شطرنج شایان"});
+            }else{
+                const a=document.createElement("a");
+                a.href=canvas.toDataURL("image/png");
+                a.download="chess.png";
+                a.click();
+            }
+        },"image/png");
+    });
+}
     <script src="https://tapi.bale.ai/miniapp.js?3"></script>
+function takeBoardPhoto(){
+    const boardElement=document.getElementById("board");
+    html2canvas(boardElement,{backgroundColor:"#ffffff",scale:2}).then(canvas=>{
+        canvas.toBlob(blob=>{
+            const file=new File([blob],"chess.png",{type:"image/png"});
+            if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
+                navigator.share({files:[file],title:"شطرنج شایان"});
+            }else{
+                const a=document.createElement("a");
+                a.href=canvas.toDataURL("image/png");
+                a.download="chess.png";
+                a.click();
+            }
+        },"image/png");
+    });
+}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; touch-action: manipulation; }
@@ -136,7 +168,7 @@
         <div class="result-icon" id="resultIcon">🏆</div>
         <div class="result-title" id="resultTitle"></div>
         <div class="result-subtitle" id="resultSubtitle"></div>
-        <button class="btn" onclick="resetGame()"> بازی جدید</button>
+        <button class="btn" onclick="resetGame()"> بازی جدید</button> <button class="btn" onclick="takeBoardPhoto()">📸</button>
         <div class="send-status" id="sendStatus"></div>
     </div>
 </div>
@@ -597,6 +629,22 @@ async function sendResultToBot(){
 
 initBoard();updateStatus();renderBoard();
 if(botColor==='w')setTimeout(botMove,500);
+function takeBoardPhoto(){
+    const boardElement=document.getElementById("board");
+    html2canvas(boardElement,{backgroundColor:"#ffffff",scale:2}).then(canvas=>{
+        canvas.toBlob(blob=>{
+            const file=new File([blob],"chess.png",{type:"image/png"});
+            if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
+                navigator.share({files:[file],title:"شطرنج شایان"});
+            }else{
+                const a=document.createElement("a");
+                a.href=canvas.toDataURL("image/png");
+                a.download="chess.png";
+                a.click();
+            }
+        },"image/png");
+    });
+}
 </script>
 </body>
 </html>
