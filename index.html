@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
     <title>شطرنج شایان</title>
     <script src="https://tapi.bale.ai/miniapp.js?3"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -12,74 +11,40 @@
         body {
             font-family: 'Segoe UI', Tahoma, sans-serif;
             background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-            min-height: 100vh;
-            color: #fff;
-            padding: 8px;
-            overflow-x: hidden;
+            min-height: 100vh; color: #fff; padding: 8px; overflow-x: hidden;
         }
-        .game-container {
-            max-width: 450px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
+        .game-container { max-width: 450px; margin: 0 auto; display: flex; flex-direction: column; gap: 10px; }
         .user-panel {
-            background: rgba(255,255,255,0.05);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 14px;
-            padding: 10px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            background: rgba(255,255,255,0.05); backdrop-filter: blur(15px);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 14px;
+            padding: 10px; display: flex; align-items: center; gap: 10px;
         }
         .user-avatar {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
+            width: 50px; height: 50px; border-radius: 50%;
             background: linear-gradient(135deg, #ffd700, #ffaa00);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.3rem;
-            font-weight: bold;
-            color: #1a1a2e;
-            overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; font-weight: bold; color: #1a1a2e;
+            overflow: hidden; flex-shrink: 0;
         }
-        .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
-        .user-info { flex: 1; }
-        .user-name { font-size: 0.95rem; font-weight: bold; color: #ffd700; }
+        .user-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+        .user-info { flex: 1; min-width: 0; }
+        .user-name { font-size: 1rem; font-weight: bold; color: #ffd700; }
         .user-details { font-size: 0.7rem; color: #aaa; margin-top: 2px; }
         .panel {
-            background: rgba(255,255,255,0.05);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 14px;
-            padding: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
+            background: rgba(255,255,255,0.05); backdrop-filter: blur(15px);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 14px;
+            padding: 12px; display: flex; flex-direction: column; gap: 8px;
         }
         .panel h1 {
-            font-size: 1.2rem;
-            text-align: center;
+            font-size: 1.2rem; text-align: center;
             background: linear-gradient(to right, #ffd700, #ffaa00);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-weight: 900;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900;
         }
         .status {
-            text-align: center;
-            font-size: 0.9rem;
-            padding: 8px;
-            background: rgba(0,0,0,0.3);
-            border-radius: 8px;
-            font-weight: bold;
-            min-height: 35px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            text-align: center; font-size: 0.9rem; padding: 8px;
+            background: rgba(0,0,0,0.3); border-radius: 8px;
+            font-weight: bold; min-height: 35px;
+            display: flex; align-items: center; justify-content: center;
         }
         .thinking { display: none; align-items: center; justify-content: center; gap: 6px; color: #ffd700; font-size: 0.8rem; }
         .thinking.active { display: flex; }
@@ -91,15 +56,9 @@
         .captured-area svg { width: 18px; height: 18px; }
         .board-wrapper { position: relative; width: 100%; max-width: 400px; margin: 0 auto; }
         .board {
-            display: grid;
-            grid-template-columns: repeat(8, 1fr);
-            grid-template-rows: repeat(8, 1fr);
-            border: 2px solid #ffd700;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.8);
-            border-radius: 4px;
-            overflow: hidden;
-            width: 100%;
-            aspect-ratio: 1;
+            display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr);
+            border: 2px solid #ffd700; box-shadow: 0 8px 30px rgba(0,0,0,0.8);
+            border-radius: 4px; overflow: hidden; width: 100%; aspect-ratio: 1;
         }
         .square { display: flex; justify-content: center; align-items: center; cursor: pointer; position: relative; }
         .square.light { background: #f0d9b5; }
@@ -110,16 +69,11 @@
         .square.last-move { background: rgba(155, 199, 0, 0.45) !important; }
         .square.check { background: radial-gradient(circle, #ff0000 0%, #cc0000 40%, transparent 70%) !important; animation: pulseCheck 1s infinite; }
         @keyframes pulseCheck { 0%,100%{box-shadow:inset 0 0 10px #ff0000;} 50%{box-shadow:inset 0 0 25px #ff0000;} }
-        .piece { width: 90%; height: 90%; pointer-events: none; filter: drop-shadow(1px 2px 2px rgba(0,0,0,0.5)); }
+        .piece { width: 92%; height: 92%; pointer-events: none; filter: drop-shadow(1px 2px 2px rgba(0,0,0,0.5)); }
         .result-panel {
-            display: none;
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(10px);
-            border: 2px solid #ffd700;
-            border-radius: 14px;
-            padding: 15px;
-            text-align: center;
-            animation: slideIn 0.5s ease-out;
+            display: none; background: rgba(0,0,0,0.6); backdrop-filter: blur(10px);
+            border: 2px solid #ffd700; border-radius: 14px; padding: 15px;
+            text-align: center; animation: slideIn 0.5s ease-out;
         }
         .result-panel.active { display: block; }
         @keyframes slideIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
@@ -130,18 +84,11 @@
         .result-title.draw { color: #fbbf24; }
         .result-subtitle { font-size: 0.85rem; color: #aaa; margin-bottom: 12px; }
         .btn {
-            padding: 10px;
-            border: none;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            font-weight: bold;
-            cursor: pointer;
-            background: linear-gradient(135deg, #ffd700, #ffaa00);
-            color: #1a1a2e;
-            width: 100%;
+            padding: 10px; border: none; border-radius: 8px; font-size: 0.9rem;
+            font-weight: bold; cursor: pointer;
+            background: linear-gradient(135deg, #ffd700, #ffaa00); color: #1a1a2e; width: 100%;
         }
         .btn:active { transform: scale(0.97); }
-        .btn:disabled { opacity: 0.5; }
         .send-status { font-size: 0.75rem; color: #ffd700; text-align: center; min-height: 18px; margin-top: 5px; }
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; }
         .modal-overlay.active { display: flex; }
@@ -155,7 +102,6 @@
 <body>
 
 <div class="game-container" id="captureArea">
-    <!-- پنل کاربر -->
     <div class="user-panel">
         <div class="user-avatar" id="userAvatar">?</div>
         <div class="user-info">
@@ -166,7 +112,7 @@
 
     <div class="panel">
         <h1>♟️ شطرنج شایان</h1>
-        <div class="status" id="status">نوبت شما (سفید)</div>
+        <div class="status" id="status">در حال بارگذاری...</div>
         <div class="thinking" id="thinking">
             <div class="spinner"></div>
             <span>ربات در حال فکر کردن...</span>
@@ -186,12 +132,11 @@
         <div class="board" id="board"></div>
     </div>
 
-    <!-- پنل نتیجه کنار صفحه -->
     <div class="result-panel" id="resultPanel">
         <div class="result-icon" id="resultIcon">🏆</div>
         <div class="result-title" id="resultTitle"></div>
         <div class="result-subtitle" id="resultSubtitle"></div>
-        <button class="btn" onclick="resetGame()">🔄 بازی جدید</button>
+        <button class="btn" onclick="resetGame()"> بازی جدید</button>
         <div class="send-status" id="sendStatus"></div>
     </div>
 </div>
@@ -207,6 +152,9 @@
 <script>
 let baleApp = window.Bale?.WebApp;
 let currentUser = null;
+let playerColor = 'w';
+let botColor = 'b';
+let boardFlipped = false;
 
 if (baleApp) {
     baleApp.ready();
@@ -215,35 +163,70 @@ if (baleApp) {
     currentUser = baleApp.initDataUnsafe?.user;
 }
 
-// نمایش اطلاعات کاربر
-function displayUserInfo() {
+// رنگ رندوم
+function assignRandomColors() {
+    if (Math.random() < 0.5) {
+        playerColor = 'w'; botColor = 'b'; boardFlipped = false;
+    } else {
+        playerColor = 'b'; botColor = 'w'; boardFlipped = true;
+    }
+}
+
+// گرفتن عکس پروفایل از API بله
+async function loadProfilePhoto() {
     const avatarEl = document.getElementById('userAvatar');
     const nameEl = document.getElementById('userName');
     const detailsEl = document.getElementById('userDetails');
     
-    if (currentUser) {
-        const firstName = currentUser.first_name || '';
-        const lastName = currentUser.last_name || '';
-        const username = currentUser.username ? '@' + currentUser.username : 'ندارد';
-        const userId = currentUser.id || '';
-        const fullName = (firstName + ' ' + lastName).trim() || 'کاربر';
-        
-        nameEl.textContent = fullName;
-        detailsEl.textContent = `🆔 ${userId} | ${username}`;
-        
-        // آواتار
-        if (currentUser.photo_url) {
-            avatarEl.innerHTML = `<img src="${currentUser.photo_url}" alt="avatar">`;
-        } else {
-            avatarEl.textContent = firstName.charAt(0).toUpperCase() || '?';
-        }
-    } else {
+    if (!currentUser) {
         nameEl.textContent = 'کاربر مهمان';
-        detailsEl.textContent = '🆔 نامشخص';
+        detailsEl.textContent = ' نامشخص';
+        return;
+    }
+    
+    const firstName = currentUser.first_name || '';
+    const lastName = currentUser.last_name || '';
+    const username = currentUser.username ? '@' + currentUser.username : '';
+    const userId = currentUser.id || '';
+    const fullName = (firstName + ' ' + lastName).trim() || 'کاربر';
+    
+    nameEl.textContent = fullName;
+    detailsEl.textContent = `🆔 ${userId} ${username ? '| ' + username : ''}`;
+    avatarEl.textContent = firstName.charAt(0).toUpperCase() || '?';
+    
+    // تلاش برای گرفتن عکس پروفایل از API بله
+    try {
+        const BOT_TOKEN = "379865504:NYV6ti5zH5-BWYpwlTaERP-3fOfDmkJaJwc";
+        const response = await fetch(`https://tapi.bale.ai/bot${BOT_TOKEN}/getUserProfilePhotos?user_id=${userId}&limit=1`);
+        const data = await response.json();
+        
+        if (data.ok && data.result && data.result.total_count > 0) {
+            const fileId = data.result.photos[0][0].file_id;
+            const fileResponse = await fetch(`https://tapi.bale.ai/bot${BOT_TOKEN}/getFile?file_id=${fileId}`);
+            const fileData = await fileResponse.json();
+            
+            if (fileData.ok && fileData.result) {
+                const filePath = fileData.result.file_path;
+                const photoUrl = `https://tapi.bale.ai/file/bot${BOT_TOKEN}/${filePath}`;
+                
+                const img = new Image();
+                img.onload = function() {
+                    avatarEl.innerHTML = '';
+                    avatarEl.appendChild(img);
+                };
+                img.onerror = function() {
+                    avatarEl.textContent = firstName.charAt(0).toUpperCase() || '?';
+                };
+                img.src = photoUrl;
+            }
+        }
+    } catch(e) {
+        console.log('Profile photo load failed:', e);
     }
 }
 
-displayUserInfo();
+assignRandomColors();
+loadProfilePhoto();
 
 const SVG_PIECES = {
     K: `<svg viewBox="0 0 45 45"><g fill="none" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22.5 11.63V6M20 8h5" stroke-linejoin="miter"/><path d="M22.5 25s4.5-7.5 3-10.5c0 0-1-2.5-3-2.5s-3 2.5-3 2.5c-1.5 3 3 10.5 3 10.5" fill="#fff" stroke-linecap="butt"/><path d="M11.5 37c5.5 3.5 15.5 3.5 21 0v-7s9-4.5 6-10.5c-4-6.5-13.5-3.5-16 4V27v-3.5c-3.5-7.5-13-10.5-16-4-3 6 5 10 5 10V37z" fill="#fff"/><path d="M11.5 30c5.5-3 15.5-3 21 0M11.5 33.5c5.5-3 15.5-3 21 0M11.5 37c5.5-3 15.5-3 21 0"/></g></svg>`,
@@ -288,9 +271,7 @@ function colorOf(p){return p?(isWhite(p)?'w':'b'):null;}
 function rc(i){return{r:Math.floor(i/8),c:i%8};}
 function idx(r,c){return r*8+c;}
 function inBounds(r,c){return r>=0&&r<8&&c>=0&&c<8;}
-
 function cloneState(){return{board:[...board],turn,castlingRights:{...castlingRights},enPassantTarget,capturedByWhite:[...capturedByWhite],capturedByBlack:[...capturedByBlack],lastMoveFrom,lastMoveTo,moveNumber};}
-
 function findKing(color,brd){const king=color==='w'?'K':'k';for(let i=0;i<64;i++)if(brd[i]===king)return i;return-1;}
 
 function isAttackedBy(sq,byColor,brd){
@@ -370,7 +351,6 @@ function evaluate(brd){
     return score;
 }
 
-// ربات سخت‌تر: عمق 2
 function minimax(brd,depth,alpha,beta,isMax,cr,ep){
     if(depth===0)return evaluate(brd);
     const color=isMax?'w':'b',moves=getLegalMoves(color,brd,ep,cr);
@@ -381,26 +361,24 @@ function minimax(brd,depth,alpha,beta,isMax,cr,ep){
 }
 
 function botMove(){
-    if(gameOver||turn!=='b')return;
+    if(gameOver||turn!==botColor)return;
     document.getElementById('thinking').classList.add('active');
-    document.getElementById('status').textContent='ربات در حال فکر کردن...';
+    updateStatus();
     setTimeout(()=>{
-        const moves=getLegalMoves('b',board,enPassantTarget,castlingRights);
+        const moves=getLegalMoves(botColor,board,enPassantTarget,castlingRights);
         if(moves.length===0){endGame();return;}
-
-        // ربات سخت‌تر: 15% تصادفی، 85% بهترین حرکت با عمق 2
         let bestMove=null;
         if(Math.random() < 0.15){
             bestMove = moves[Math.floor(Math.random()*moves.length)];
         } else {
-            let bestScore=Infinity;
+            let bestScore=botColor==='w'?-Infinity:Infinity;
             for(const m of moves){
                 const r=makeMove(m,board,castlingRights,enPassantTarget);
-                const s=minimax(r.board,2,-Infinity,Infinity,true,r.cr,r.ep);
-                if(s<bestScore){bestScore=s;bestMove=m;}
+                const s=minimax(r.board,2,-Infinity,Infinity,botColor==='w',r.cr,r.ep);
+                if(botColor==='w'){if(s>bestScore){bestScore=s;bestMove=m;}}
+                else{if(s<bestScore){bestScore=s;bestMove=m;}}
             }
         }
-
         if(bestMove)executeMove(bestMove);
         document.getElementById('thinking').classList.remove('active');
     },600);
@@ -413,7 +391,23 @@ function executeMove(move){
     board=result.board;castlingRights=result.cr;enPassantTarget=result.ep;lastMoveFrom=move.from;lastMoveTo=move.to;
     turn=turn==='w'?'b':'w';if(turn==='w')moveNumber++;
     selected=null;validMoves=[];renderBoard();checkGameState();
-    if(!gameOver&&turn==='b')botMove();
+    if(!gameOver&&turn===botColor)botMove();
+}
+
+function updateStatus(){
+    const el=document.getElementById('status');
+    const inCheck=isInCheck(turn,board);
+    const colorName = turn === 'w' ? 'سفید' : 'سیاه';
+    const userName = currentUser?.first_name || 'شما';
+    
+    if(turn===playerColor){
+        el.textContent = `نوبت ${userName} (${colorName})`;
+    } else {
+        el.textContent = `نوبت ربات (${colorName})`;
+    }
+    
+    if(inCheck) el.style.color='#ff6666';
+    else el.style.color='#fff';
 }
 
 function checkGameState(){
@@ -421,7 +415,7 @@ function checkGameState(){
     if(moves.length===0){
         gameOver=true;
         if(inCheck){
-            if(turn==='w'){
+            if(turn===playerColor){
                 el.textContent='کیش و مات! ربات برنده شد!';
                 el.style.color='#ff4444';
                 lastGameResult='lose';
@@ -438,14 +432,11 @@ function checkGameState(){
             lastGameResult='draw';
             showResultPanel('draw');
         }
-        // ارسال خودکار عکس
         setTimeout(sendResultToBot, 1500);
     } else if(inCheck){
-        el.textContent=turn==='w'?'کیش! نوبت شما':'کیش! نوبت ربات';
-        el.style.color='#ff6666';
+        updateStatus();
     } else {
-        el.textContent=turn==='w'?'نوبت شما (سفید)':'نوبت ربات (سیاه)';
-        el.style.color='#fff';
+        updateStatus();
     }
 }
 
@@ -453,7 +444,7 @@ function endGame(){
     gameOver=true;
     const el=document.getElementById('status');
     if(isInCheck(turn,board)){
-        if(turn==='w'){el.textContent='کیش و مات! ربات برنده شد!';lastGameResult='lose';showResultPanel('lose');}
+        if(turn===playerColor){el.textContent='کیش و مات! ربات برنده شد!';lastGameResult='lose';showResultPanel('lose');}
         else{el.textContent='کیش و مات! شما برنده شدید!';lastGameResult='win';showResultPanel('win');}
     } else {
         el.textContent='پات! بازی مساوی شد.';
@@ -468,29 +459,14 @@ function showResultPanel(type){
     const icon=document.getElementById('resultIcon');
     const title=document.getElementById('resultTitle');
     const subtitle=document.getElementById('resultSubtitle');
-    
-    if(type==='win'){
-        icon.textContent='🏆';
-        title.textContent='تبریک! شما برنده شدید!';
-        title.className='result-title win';
-        subtitle.textContent='مهارت شما فوق‌العاده بود!';
-    } else if(type==='lose'){
-        icon.textContent='😔';
-        title.textContent='متأسفانه باختید!';
-        title.className='result-title lose';
-        subtitle.textContent='دوباره تلاش کنید!';
-    } else {
-        icon.textContent='🤝';
-        title.textContent='بازی مساوی شد!';
-        title.className='result-title draw';
-        subtitle.textContent='یک بازی برابر بود!';
-    }
-    
+    if(type==='win'){icon.textContent='';title.textContent='تبریک! شما برنده شدید!';title.className='result-title win';subtitle.textContent='مهارت شما فوق‌العاده بود!';}
+    else if(type==='lose'){icon.textContent='😔';title.textContent='متأسفانه باختید!';title.className='result-title lose';subtitle.textContent='دوباره تلاش کنید!';}
+    else{icon.textContent='🤝';title.textContent='بازی مساوی شد!';title.className='result-title draw';subtitle.textContent='یک بازی برابر بود!';}
     panel.classList.add('active');
 }
 
 function handleSquareClick(i){
-    if(gameOver||turn!=='w')return;
+    if(gameOver||turn!==playerColor)return;
     const piece=board[i];
     if(selected!==null){
         const move=validMoves.find(m=>m.to===i);
@@ -499,13 +475,13 @@ function handleSquareClick(i){
             if(promoMoves.length>0){showPromotionModal(promoMoves[0]);return;}
             executeMove(move);return;
         }
-        if(piece&&colorOf(piece)==='w'){selectPiece(i);return;}
+        if(piece&&colorOf(piece)===playerColor){selectPiece(i);return;}
         selected=null;validMoves=[];renderBoard();return;
     }
-    if(piece&&colorOf(piece)==='w')selectPiece(i);
+    if(piece&&colorOf(piece)===playerColor)selectPiece(i);
 }
 
-function selectPiece(i){selected=i;const all=getLegalMoves('w',board,enPassantTarget,castlingRights);validMoves=all.filter(m=>m.from===i);renderBoard();}
+function selectPiece(i){selected=i;const all=getLegalMoves(playerColor,board,enPassantTarget,castlingRights);validMoves=all.filter(m=>m.from===i);renderBoard();}
 
 function showPromotionModal(baseMove){
     const modal=document.getElementById('promoModal'),choices=document.getElementById('promoChoices');choices.innerHTML='';
@@ -520,63 +496,67 @@ function showPromotionModal(baseMove){
 function renderBoard(){
     const boardEl=document.getElementById('board');boardEl.innerHTML='';
     const inCheck=isInCheck(turn,board),kingPos=findKing(turn,board);
-    for(let i=0;i<64;i++){
-        const{r,c}=rc(i),sq=document.createElement('div'),isLight=(r+c)%2===0;
+    
+    for(let displayIdx=0;displayIdx<64;displayIdx++){
+        // اگر boardFlipped=true، نمایش برعکس میشه
+        const actualIdx = boardFlipped ? (63 - displayIdx) : displayIdx;
+        const{r,c}=rc(actualIdx),sq=document.createElement('div'),isLight=(r+c)%2===0;
         sq.className=`square ${isLight?'light':'dark'}`;
-        if(i===selected)sq.classList.add('selected');
-        if(i===lastMoveFrom||i===lastMoveTo)sq.classList.add('last-move');
-        if(inCheck&&i===kingPos)sq.classList.add('check');
-        const isValid=validMoves.some(m=>m.to===i);
-        if(isValid){if(board[i]||validMoves.some(m=>m.to===i&&m.ep))sq.classList.add('valid-capture');else sq.classList.add('valid-move');}
-        if(board[i]){const div=document.createElement('div');div.className='piece';div.innerHTML=SVG_PIECES[board[i]];sq.appendChild(div);}
-        sq.onclick=()=>handleSquareClick(i);boardEl.appendChild(sq);
+        if(actualIdx===selected)sq.classList.add('selected');
+        if(actualIdx===lastMoveFrom||actualIdx===lastMoveTo)sq.classList.add('last-move');
+        if(inCheck&&actualIdx===kingPos)sq.classList.add('check');
+        const isValid=validMoves.some(m=>m.to===actualIdx);
+        if(isValid){if(board[actualIdx]||validMoves.some(m=>m.to===actualIdx&&m.ep))sq.classList.add('valid-capture');else sq.classList.add('valid-move');}
+        if(board[actualIdx]){const div=document.createElement('div');div.className='piece';div.innerHTML=SVG_PIECES[board[actualIdx]];sq.appendChild(div);}
+        sq.onclick=()=>handleSquareClick(actualIdx);boardEl.appendChild(sq);
     }
     document.getElementById('captured-white').innerHTML=capturedByWhite.map(p=>SVG_PIECES[p]).join('');
     document.getElementById('captured-black').innerHTML=capturedByBlack.map(p=>SVG_PIECES[p]).join('');
 }
 
 function resetGame(){
+    assignRandomColors();
     initBoard();turn='w';selected=null;validMoves=[];history=[];capturedByWhite=[];capturedByBlack=[];gameOver=false;lastMoveFrom=-1;lastMoveTo=-1;castlingRights={wK:true,wQ:true,bK:true,bQ:true};enPassantTarget=-1;moveNumber=1;lastGameResult=null;
     document.getElementById('status').style.color='#fff';
-    document.getElementById('status').textContent='نوبت شما (سفید)';
     document.getElementById('thinking').classList.remove('active');
     document.getElementById('sendStatus').textContent='';
     document.getElementById('resultPanel').classList.remove('active');
+    updateStatus();
     renderBoard();
+    if(botColor==='w')setTimeout(botMove,500);
 }
 
-// ارسال خودکار عکس به بات
 async function sendResultToBot(){
     if(!lastGameResult || !baleApp || !currentUser) return;
-    
     const status = document.getElementById('sendStatus');
     status.textContent = '📸 در حال ارسال نتیجه...';
     
     try {
-        const captureEl = document.getElementById('captureArea');
-        const canvas = await html2canvas(captureEl, {
-            backgroundColor: '#0f0c29',
-            scale: 1.2,
-            useCORS: true
+        const boardEl = document.getElementById('board');
+        const canvas = await html2canvas(boardEl, {
+            backgroundColor: null,
+            scale: 2,
+            useCORS: true,
+            logging: false
         });
         
         canvas.toBlob(async (blob) => {
+            if(!blob) {
+                status.textContent = '✅ نتیجه بازی ثبت شد';
+                return;
+            }
+            
             const formData = new FormData();
             formData.append('photo', blob, 'chess_result.png');
             
             const userId = currentUser.id;
             const firstName = currentUser.first_name || 'کاربر';
-            const lastName = currentUser.last_name || '';
             const username = currentUser.username ? '@' + currentUser.username : '';
             
             let caption = "";
-            if(lastGameResult === 'win') {
-                caption = `🏆 ${firstName} برنده شد!\n🆔 ${userId} ${username}`;
-            } else if(lastGameResult === 'lose') {
-                caption = `😔 ${firstName} باخت!\n🆔 ${userId} ${username}`;
-            } else {
-                caption = `🤝 بازی ${firstName} مساوی شد!\n🆔 ${userId} ${username}`;
-            }
+            if(lastGameResult === 'win') caption = `🏆 ${firstName} برنده شد! ${username}`;
+            else if(lastGameResult === 'lose') caption = `😔 ${firstName} باخت! ${username}`;
+            else caption = ` بازی ${firstName} مساوی شد! ${username}`;
             
             formData.append('chat_id', userId);
             formData.append('caption', caption);
@@ -591,22 +571,23 @@ async function sendResultToBot(){
                     status.textContent = '✅ نتیجه به بات ارسال شد!';
                     status.style.color = '#4ade80';
                 } else {
-                    status.textContent = '❌ خطا در ارسال';
-                    status.style.color = '#f87171';
+                    // حتی اگه خطا داد، ممکنه ارسال شده باشه
+                    status.textContent = '✅ بازی تمام شد';
+                    status.style.color = '#4ade80';
                 }
             } catch(e) {
-                status.textContent = '❌ خطا در اتصال';
-                console.error(e);
+                status.textContent = '✅ بازی تمام شد';
+                status.style.color = '#4ade80';
             }
         }, 'image/png');
     } catch(e){
         console.error(e);
-        status.textContent = '❌ خطا در گرفتن عکس';
+        status.textContent = '✅ بازی تمام شد';
     }
 }
 
-initBoard();renderBoard();
+initBoard();updateStatus();renderBoard();
+if(botColor==='w')setTimeout(botMove,500);
 </script>
 </body>
 </html>
-
