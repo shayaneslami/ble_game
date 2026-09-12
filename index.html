@@ -74,7 +74,7 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; background: linear-gradient(
 <div class="status" id="status">در حال بارگذاری...</div>
 <div class="thinking" id="thinking">
 <div class="spinner"></div>
-<span>Stockfish در حال فکر کردن...</span>
+<span>هوش مصنوعی در حال تحلیل بازی...</span>
 </div>
 <div class="captured-row">
 <small>گرفته توسط شما:</small>
@@ -122,14 +122,20 @@ playerColor = 'w'; botColor = 'b'; boardFlipped = false;
 playerColor = 'b'; botColor = 'w'; boardFlipped = true;
 }
 }
-async function loadProfilePhoto() {
-const avatarEl = document.getElementById('userAvatar');
-const nameEl = document.getElementById('userName');
-const detailsEl = document.getElementById('userDetails');
-if (!currentUser) {
-nameEl.textContent = 'کاربر مهمان';
-detailsEl.textContent = '🆔 نامشخص';
-return;
+async function loadProfilePhoto(){
+    try{
+        if(typeof BaleMiniApp==="undefined") return;
+        const userId = currentUser?.id;
+        if(!userId) return;
+
+        const response = await fetch("/api/profile-photo/"+encodeURIComponent(userId));
+        if(!response.ok) return;
+
+        const data = await response.json();
+        console.log("📸 Profile photo response:",data);
+    }catch(e){
+        console.warn("Profile photo unavailable:",e);
+    }
 }
 const firstName = currentUser.first_name || '';
 const lastName = currentUser.last_name || '';
@@ -140,7 +146,6 @@ nameEl.textContent = fullName;
 detailsEl.textContent = `🆔 ${userId} ${username ? '| ' + username : ''}`;
 avatarEl.textContent = firstName.charAt(0).toUpperCase() || '?';
 try {
-const BOT_TOKEN = "379865504:NYV6ti5zH5-BWYpwlTaERP-3fOfDmkJaJwc";
 const response = await fetch(`https://tapi.bale.ai/bot${BOT_TOKEN}/getUserProfilePhotos?user_id=${userId}&limit=1`);
 const data = await response.json();
 if (data.ok && data.result && data.result.total_count > 0) {
@@ -175,13 +180,14 @@ n: `<svg viewBox="0 0 45 45"><g fill="none" stroke="#000" stroke-width="1.5" str
 p: `<svg viewBox="0 0 45 45"><path d="M22.5 9c-2.21 0-4 1.79-4 4 0 .89.29 1.71.78 2.38C17.33 16.5 16 18.59 16 21c0 2.03.94 3.84 2.41 5.03C15.41 27.09 11 31.58 11 39.5H34c0-7.92-4.41-12.41-7.41-13.47C28.06 24.84 29 23.03 29 21c0-2.41-1.33-4.5-3.28-5.62.49-.67.78-1.49.78-2.38 0-2.21-1.79-4-4-4z" fill="#000" stroke="#000" stroke-width="1.5" stroke-linecap="round"/></svg>`
 };
 const PIECE_VALUES = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 20000 };
-let board=[], turn='w', selected=null, validMoves=[], history=[];
+let board=[], turn="w", selected=null, validMoves=[], history=[];
+let moveHistory=[];
+
 let capturedByWhite=[], capturedByBlack=[];
 let gameOver=false, lastMoveFrom=-1, lastMoveTo=-1;
 let castlingRights={wK:true,wQ:true,bK:true,bQ:true};
 let enPassantTarget=-1, moveNumber=1;
 let lastGameResult=null;
-const BOT_TOKEN = "379865504:NYV6ti5zH5-BWYpwlTaERP-3fOfDmkJaJwc";
 function initBoard(){
     board=[
         "r","n","b","q","k","b","n","r",
@@ -330,28 +336,16 @@ const matchedMove = legalMoves.find(m => m.from === fromIdx && m.to === toIdx &&
 if (matchedMove) executeMove(matchedMove);
 else console.warn('⚠️ حرکت Stockfish پیدا نشد:', moveStr);
 }
-function botMove() {
-if (gameOver || turn !== botColor) return;
-if (!stockfish || !stockfishReady) {
-document.getElementById('thinking').classList.add('active');
-updateStatus();
-setTimeout(() => {
-const moves = getLegalMoves(botColor, board, enPassantTarget, castlingRights);
-if (moves.length === 0) { endGame(); return; }
-const randomMove = moves[Math.floor(Math.random() * moves.length)];
-executeMove(randomMove);
-document.getElementById('thinking').classList.remove('active');
-}, 500);
-return;
+function botMove(){
+    if(gameOver||turn!==botColor)return;
+    aiBotMove();
 }
-document.getElementById('thinking').classList.add('active');
-updateStatus();
-stockfishBestMove = null;
-const fen = boardToFEN();
-stockfish.postMessage('position fen ' + fen);
-stockfish.postMessage('setoption name Skill Level value 20'); stockfish.postMessage('setoption name Threads value 2'); stockfish.postMessage('setoption name Hash value 128'); stockfish.postMessage('go depth 30 movetime 5000');
-}
+
 function executeMove(move){
+const uciMove=moveToUCI(move);
+moveHistory.push(uciMove);
+console.log("♟️ Move:",uciMove," | FEN:",boardToFEN());
+
 history.push(cloneState());
 const piece=board[move.from],color=colorOf(piece),result=makeMove(move,board,castlingRights,enPassantTarget);
 if(result.captured){if(color==='w')capturedByWhite.push(result.captured);else capturedByBlack.push(result.captured);}
@@ -445,7 +439,7 @@ document.getElementById('captured-black').innerHTML=capturedByBlack.map(p=>SVG_P
 }
 function resetGame(){
 assignRandomColors();
-initBoard();turn='w';selected=null;validMoves=[];history=[];capturedByWhite=[];capturedByBlack=[];gameOver=false;lastMoveFrom=-1;lastMoveTo=-1;castlingRights={wK:true,wQ:true,bK:true,bQ:true};enPassantTarget=-1;moveNumber=1;lastGameResult=null;
+initBoard();turn='w';selected=null;validMoves=[];history=[];moveHistory=[];capturedByWhite=[];capturedByBlack=[];gameOver=false;lastMoveFrom=-1;lastMoveTo=-1;castlingRights={wK:true,wQ:true,bK:true,bQ:true};enPassantTarget=-1;moveNumber=1;lastGameResult=null;
 document.getElementById('status').style.color='#fff';
 document.getElementById('thinking').classList.remove('active');
 document.getElementById('sendStatus').textContent='';
