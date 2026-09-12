@@ -183,7 +183,7 @@ let enPassantTarget=-1, moveNumber=1;
 let lastGameResult=null;
 const BOT_TOKEN = "379865504:NYV6ti5zH5-BWYpwlTaERP-3fOfDmkJaJwc";
 function initBoard(){
-board=["r","n","b","q","k","b","n","r","p","p","p","p","p","p","p","p","","","","","","","","","","","","","","","","","","","","","","","P","P","P","P","P","P","P","P","R","N","B","Q","K","B","N","R"];
+board=["r","n","b","q","k","b","n","r","p","p","p","p","p","p","p","p","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","P","P","P","P","P","P","P","P","R","N","B","Q","K","B","N","R"];
 }
 function isWhite(p){return p&&p===p.toUpperCase();}
 function isBlack(p){return p&&p===p.toLowerCase();}
@@ -340,7 +340,7 @@ updateStatus();
 stockfishBestMove = null;
 const fen = boardToFEN();
 stockfish.postMessage('position fen ' + fen);
-stockfish.postMessage('go depth 18 movetime 800');
+stockfish.postMessage('setoption name Skill Level value 20'); stockfish.postMessage('setoption name Threads value 2'); stockfish.postMessage('setoption name Hash value 128'); stockfish.postMessage('go depth 30 movetime 5000');
 }
 function executeMove(move){
 history.push(cloneState());
