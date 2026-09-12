@@ -183,7 +183,16 @@ let enPassantTarget=-1, moveNumber=1;
 let lastGameResult=null;
 const BOT_TOKEN = "379865504:NYV6ti5zH5-BWYpwlTaERP-3fOfDmkJaJwc";
 function initBoard(){
-board=["r","n","b","q","k","b","n","r","p","p","p","p","p","p","p","p","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","P","P","P","P","P","P","P","P","R","N","B","Q","K","B","N","R"];
+    board=[
+        "r","n","b","q","k","b","n","r",
+        "p","p","p","p","p","p","p","p",
+        "","","","","","","","",
+        "","","","","","","","",
+        "","","","","","","","",
+        "","","","","","","","",
+        "P","P","P","P","P","P","P","P",
+        "R","N","B","Q","K","B","N","R"
+    ];
 }
 function isWhite(p){return p&&p===p.toUpperCase();}
 function isBlack(p){return p&&p===p.toLowerCase();}
@@ -265,7 +274,7 @@ let stockfishReady = false;
 let stockfishBestMove = null;
 function initStockfish() {
 try {
-stockfish = new Worker('https://cdnjs.cloudflare.com/ajax/libs/stockfish.js/10.0.0/stockfish.js');
+stockfish = new Worker('https://unpkg.com/stockfish@18.0.8/bin/stockfish-18-single.js');
 stockfish.onmessage = function(event) {
 const msg = event.data;
 if (msg.startsWith('uciok')) { stockfishReady = true; console.log('✅ Stockfish آماده'); }
